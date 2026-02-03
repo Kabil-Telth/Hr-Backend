@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .api-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+            color: white;
+        }
+        
+        .get { background: #61affe; }
+        .post { background: #49cc90; }
+        .put { background: #fca130; }
+        .delete { background: #f93e3e; }
+        
+        .path {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .description {
+            margin: 1rem 0;
+            color: #666;
+        }
+        
+        .request-body, .response {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+        
+        .code-block {
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+        
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .params-table th, .params-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .params-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .required {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .optional {
+            color: #3498db;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .quick-link {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .quick-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            color: #3498db;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header, .api-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 API Documentation</h1>
+            <p class="subtitle">Complete guide for frontend developers</p>
+            <div class="quick-links">
+                <a href="/" class="quick-link">🏠 Home</a>
+                <a href="/api-docs" class="quick-link">📖 Interactive Docs</a>
+                <a href="/api-tester" class="quick-link">🧪 API Tester</a>
+            </div>
+        </header>
+
+        <section class="api-section">
+            <h2 class="section-title">
+                <span>🔐</span> Authentication API
+            </h2>
+            
+            <!-- Signup Endpoint -->
+            <div class="endpoint">
+                <div>
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/signup</span>
+                </div>
+                <p class="description">Register a new user account</p>
+                
+                <h4>Request Body:</h4>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('signup-request')">Copy</button>
+                    <pre id="signup-request">
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "yourpassword123"
+}</pre>
+                </div>
+                
+                <h4>Response (Success):</h4>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('signup-response')">Copy</button>
+                    <pre id="signup-response">
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}</pre>
+                </div>
+            </div>
+            
+            <!-- Signin Endpoint -->
+            <div class="endpoint">
+                <div>
+                    <span class="method post">POST</span>
+                    <span class="path">/api/auth/signin</span>
+                </div>
+                <p class="description">Login with email and password</p>
+                
+                <h4>Request Body:</h4>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('signin-request')">Copy</button>
+                    <pre id="signin-request">
+{
+  "email": "john@example.com",
+  "password": "yourpassword123"
+}</pre>
+                </div>
+                
+                <h4>Response (Success):</h4>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('signin-response')">Copy</button>
+                    <pre id="signin-response">
+{
+  "message": "Login successful",
+  "user": {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}</pre>
+                </div>
+                <p><strong>Note:</strong> Access and refresh tokens are set as HTTP-only cookies</p>
+            </div>
+            
+            <!-- Add more endpoints similarly -->
+        </section>
+        
+        <section class="api-section">
+            <h2 class="section-title">
+                <span>🔧</span> Server Information
+            </h2>
+            <div class="endpoint">
+                <div>
+                    <span class="method get">GET</span>
+                    <span class="path">/</span>
+                </div>
+                <p class="description">Health check endpoint</p>
+                
+                <h4>Response:</h4>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode('health-response')">Copy</button>
+                    <pre id="health-response">API is running</pre>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const text = codeElement.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+        
+        // Auto-populate server URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const serverUrl = window.location.origin;
+            const pathElements = document.querySelectorAll('.path');
+            pathElements.forEach(el => {
+                if (!el.textContent.startsWith('http')) {
+                    el.textContent = serverUrl + el.textContent;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

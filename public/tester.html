@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .tester-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e1e8ed;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .endpoint-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .method-select {
+            padding: 10px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-weight: bold;
+            background: white;
+            min-width: 120px;
+        }
+        
+        .get { color: #61affe; border-color: #61affe; }
+        .post { color: #49cc90; border-color: #49cc90; }
+        .put { color: #fca130; border-color: #fca130; }
+        .delete { color: #f93e3e; border-color: #f93e3e; }
+        
+        .url-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+        
+        .send-btn {
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f1f1;
+        }
+        
+        .body-input, .headers-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+        
+        .response-area {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 300px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .status.success { background: #49cc90; color: white; }
+        .status.error { background: #f93e3e; color: white; }
+        .status.info { background: #61affe; color: white; }
+        
+        .endpoint-presets {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .preset-card {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .preset-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .preset-method {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 10px;
+            color: white;
+        }
+        
+        .preset-path {
+            font-family: monospace;
+            margin: 10px 0;
+            color: #2c3e50;
+        }
+        
+        .preset-desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .endpoint-form {
+                flex-direction: column;
+            }
+            
+            .endpoint-presets {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tester-card">
+            <div class="header">
+                <h1>🧪 API Testing Tool</h1>
+                <p>Test your API endpoints directly from the browser</p>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('tester')">API Tester</div>
+                <div class="tab" onclick="switchTab('presets')">Quick Tests</div>
+                <div class="tab" onclick="switchTab('guide')">Guide</div>
+            </div>
+            
+            <!-- API Tester Tab -->
+            <div class="content" id="tester-tab">
+                <div class="endpoint-form">
+                    <select class="method-select" id="method">
+                        <option value="GET" class="get">GET</option>
+                        <option value="POST" class="post">POST</option>
+                        <option value="PUT" class="put">PUT</option>
+                        <option value="DELETE" class="delete">DELETE</option>
+                    </select>
+                    <input type="text" class="url-input" id="url" 
+                           placeholder="Enter API endpoint (e.g., /api/auth/signin)" 
+                           value="/api/auth/signin">
+                    <button class="send-btn" onclick="sendRequest()">Send Request</button>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">Request Headers</h3>
+                    <textarea class="headers-input" id="headers" placeholder='{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer your_token_here"
+}'>{
+  "Content-Type": "application/json"
+}</textarea>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">Request Body</h3>
+                    <textarea class="body-input" id="body" placeholder='{
+  "key": "value"
+}'>{
+  "email": "test@example.com",
+  "password": "test123"
+}</textarea>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">Response</h3>
+                    <div id="response-container">
+                        <div class="status info">Click "Send Request" to test</div>
+                        <div class="response-area" id="response">
+                           {
+  "status": "Ready",
+  "message": "Fill in the details and click Send Request"
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Tests Tab -->
+            <div class="content" id="presets-tab" style="display: none;">
+                <h2 class="section-title">Quick Test Presets</h2>
+                <p style="margin-bottom: 20px; color: #666;">
+                    Click any preset to auto-fill the tester
+                </p>
+                
+                <div class="endpoint-presets">
+                    <!-- Auth Presets -->
+                    <div class="preset-card" onclick="loadPreset('signup')">
+                        <div>
+                            <span class="preset-method post">POST</span>
+                            <span class="preset-path">/api/auth/signup</span>
+                        </div>
+                        <p class="preset-desc">Register a new user</p>
+                    </div>
+                    
+                    <div class="preset-card" onclick="loadPreset('signin')">
+                        <div>
+                            <span class="preset-method post">POST</span>
+                            <span class="preset-path">/api/auth/signin</span>
+                        </div>
+                        <p class="preset-desc">Login with credentials</p>
+                    </div>
+                    
+                    <div class="preset-card" onclick="loadPreset('refresh')">
+                        <div>
+                            <span class="preset-method post">POST</span>
+                            <span class="preset-path">/api/auth/refresh</span>
+                        </div>
+                        <p class="preset-desc">Refresh access token</p>
+                    </div>
+                    
+                    <div class="preset-card" onclick="loadPreset('logout')">
+                        <div>
+                            <span class="preset-method post">POST</span>
+                            <span class="preset-path">/api/auth/logout</span>
+                        </div>
+                        <p class="preset-desc">Logout user</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Guide Tab -->
+            <div class="content" id="guide-tab" style="display: none;">
+                <h2 class="section-title">How to Use</h2>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">1. Select HTTP Method</h3>
+                    <p>Choose GET, POST, PUT, or DELETE from the dropdown.</p>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">2. Enter API Endpoint</h3>
+                    <p>Type the full endpoint path. Base URL is auto-added.</p>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+Examples:
+• /api/auth/signin
+• /api/users/profile
+• /api/products</pre>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">3. Add Headers (Optional)</h3>
+                    <p>Enter headers as JSON. Common headers:</p>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer your_token_here"
+}</pre>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">4. Add Request Body (Optional)</h3>
+                    <p>For POST/PUT requests, add JSON body:</p>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+{
+  "email": "user@example.com",
+  "password": "password123"
+}</pre>
+                </div>
+                
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">5. Click Send Request</h3>
+                    <p>View the response in the bottom panel.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = window.location.origin;
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.getElementById('tester-tab').style.display = 'none';
+            document.getElementById('presets-tab').style.display = 'none';
+            document.getElementById('guide-tab').style.display = 'none';
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            event.target.classList.add('active');
+        }
+        
+        function loadPreset(presetName) {
+            switchTab('tester');
+            
+            const presets = {
+                signup: {
+                    method: 'POST',
+                    url: '/api/auth/signup',
+                    body: JSON.stringify({
+                        name: "Test User",
+                        email: "test@example.com",
+                        password: "test123"
+                    }, null, 2),
+                    headers: JSON.stringify({
+                        "Content-Type": "application/json"
+                    }, null, 2)
+                },
+                signin: {
+                    method: 'POST',
+                    url: '/api/auth/signin',
+                    body: JSON.stringify({
+                        email: "test@example.com",
+                        password: "test123"
+                    }, null, 2),
+                    headers: JSON.stringify({
+                        "Content-Type": "application/json"
+                    }, null, 2)
+                },
+                refresh: {
+                    method: 'POST',
+                    url: '/api/auth/refresh',
+                    body: JSON.stringify({}, null, 2),
+                    headers: JSON.stringify({
+                        "Content-Type": "application/json"
+                    }, null, 2)
+                },
+                logout: {
+                    method: 'POST',
+                    url: '/api/auth/logout',
+                    body: JSON.stringify({}, null, 2),
+                    headers: JSON.stringify({
+                        "Content-Type": "application/json"
+                    }, null, 2)
+                }
+            };
+            
+            const preset = presets[presetName];
+            if (preset) {
+                document.getElementById('method').value = preset.method;
+                document.getElementById('url').value = preset.url;
+                document.getElementById('body').value = preset.body;
+                document.getElementById('headers').value = preset.headers;
+            }
+        }
+        
+        async function sendRequest() {
+            const method = document.getElementById('method').value;
+            let url = document.getElementById('url').value;
+            const headersText = document.getElementById('headers').value;
+            const bodyText = document.getElementById('body').value;
+            
+            // Ensure URL starts with slash and prepend base URL
+            if (!url.startsWith('http')) {
+                if (!url.startsWith('/')) {
+                    url = '/' + url;
+                }
+                url = baseUrl + url;
+            }
+            
+            let headers = {};
+            let body = null;
+            
+            try {
+                if (headersText.trim()) {
+                    headers = JSON.parse(headersText);
+                }
+            } catch (e) {
+                showResponse('error', 'Invalid JSON in headers');
+                return;
+            }
+            
+            try {
+                if (bodyText.trim() && ['POST', 'PUT', 'PATCH'].includes(method)) {
+                    body = JSON.parse(bodyText);
+                }
+            } catch (e) {
+                showResponse('error', 'Invalid JSON in body');
+                return;
+            }
+            
+            // Update UI
+            document.querySelector('.send-btn').textContent = 'Sending...';
+            document.querySelector('.send-btn').disabled = true;
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: headers,
+                    body: body ? JSON.stringify(body) : null,
+                    credentials: 'include' // Include cookies for auth
+                });
+                
+                const responseData = await response.json().catch(() => response.text());
+                
+                const responseObj = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    data: responseData
+                };
+                
+                showResponse(response.ok ? 'success' : 'error', JSON.stringify(responseObj, null, 2));
+                
+            } catch (error) {
+                showResponse('error', error.toString());
+            } finally {
+                document.querySelector('.send-btn').textContent = 'Send Request';
+                document.querySelector('.send-btn').disabled = false;
+            }
+        }
+        
+        function showResponse(type, data) {
+            const container = document.getElementById('response-container');
+            const responseElement = document.getElementById('response');
+            
+            let statusHTML = '';
+            if (type === 'success') {
+                statusHTML = '<div class="status success">✓ Success</div>';
+            } else if (type === 'error') {
+                statusHTML = '<div class="status error">✗ Error</div>';
+            } else {
+                statusHTML = '<div class="status info">ℹ Info</div>';
+            }
+            
+            container.innerHTML = statusHTML + '<div class="response-area" id="response">' + data + '</div>';
+            
+            // Re-attach the response element
+            responseElement = document.getElementById('response');
+            
+            // Add copy button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'send-btn';
+            copyBtn.textContent = 'Copy Response';
+            copyBtn.style.marginTop = '10px';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(data);
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy Response';
+                }, 2000);
+            };
+            
+            container.appendChild(copyBtn);
+        }
+        
+        // Set method class on select change
+        document.getElementById('method').addEventListener('change', function() {
+            this.className = 'method-select ' + this.value.toLowerCase();
+        });
+        
+        // Initialize
+        document.getElementById('method').dispatchEvent(new Event('change'));
+    </script>
+</body>
+</html>
