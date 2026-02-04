@@ -72,12 +72,26 @@ const referenceSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// ✅ Helper function to calculate age from DOB
+const calculateAge = (dob) => {
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  // Adjust if birthday hasn't occurred yet this year
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+};
+
 const applicationSchema = new mongoose.Schema(
   {
     // Job Details
     JobID: {
       type: String,
-      required: true
     },
     JobTitle: {
       type: String,
@@ -91,18 +105,66 @@ const applicationSchema = new mongoose.Schema(
       trim: true
     },
     DOB: {
-      type: String, // YYYY-MM-DD (from frontend)
-      required: true
+      type: String, // Format: YYYY-MM-DD
+      required: true,
+      validate: {
+        validator: function (dob) {
+          // ✅ Validate date format (YYYY-MM-DD)
+          const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+          if (!dateRegex.test(dob)) {
+            return false;
+          }
+
+          // ✅ Validate age >= 18
+          const age = calculateAge(dob);
+          return age >= 18;
+        },
+        message: 'Candidate must be at least 18 years old'
+      }
     },
+    Age: {
+  type: Number
+},
     Email: {
       type: String,
       required: true,
       lowercase: true,
-      trim: true
+      trim: true,
+      validate: {
+        validator: function (email) {
+          // ✅ Basic email validation
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        },
+        message: 'Invalid email format'
+      }
     },
     Phone: {
       type: String,
-      required: true
+      required: [true, 'Phone number is required'],
+      trim: true,
+      validate: {
+        validator: function (value) {
+          const patterns = [
+            // 🇮🇳 India
+            /^(\+91|91)?[6-9]\d{9}$/,
+
+            // 🇬🇧 UK
+            /^\+44\d{10}$/,
+
+            // 🇺🇸 US
+            /^\+1\d{10}$/,
+
+            // 🇨🇳 China
+            /^\+86[1]\d{10}$/,
+
+            // 🌍 Other countries (E.164, max 15 digits)
+            /^\+\d{1,3}\d{6,12}$/
+          ];
+
+          return patterns.some((regex) => regex.test(value));
+        },
+        message: 'Please enter a valid phone number Based on your country)'
+      }
     },
     CurrentLocation: {
       type: String
@@ -115,13 +177,16 @@ const applicationSchema = new mongoose.Schema(
     // Employment Info
     YearsOfExperience: {
       type: Number,
-      default: 0
+      default: 0,
+      min: [0, 'Years of experience cannot be negative']
     },
     Currentsalary: {
-      type: String
+      type: Number,
+      min: [0, 'Current salary cannot be negative']
     },
     ExpectedSalary: {
-      type: Number
+      type: Number,
+      min: [0, 'Expected salary cannot be negative']
     },
     NoticePeriod: {
       type: String
@@ -147,10 +212,24 @@ const applicationSchema = new mongoose.Schema(
 
     // Links
     LinkedInURL: {
-      type: String
+      type: String,
+      validate: {
+        validator: function (url) {
+          if (!url) return true; // Optional field
+          return /^https?:\/\/(www\.)?linkedin\.com\/.+$/.test(url);
+        },
+        message: 'Invalid LinkedIn URL'
+      }
     },
     PortfolioURL: {
-      type: String
+      type: String,
+      validate: {
+        validator: function (url) {
+          if (!url) return true; // Optional field
+          return /^https?:\/\/.+\..+/.test(url);
+        },
+        message: 'Invalid Portfolio URL'
+      }
     },
 
     // Extra Info
@@ -197,20 +276,28 @@ const applicationSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true }, // ✅ Include virtuals when converting to JSON
+    toObject: { virtuals: true }
   }
 );
 
-// Indexes
+// ✅ Indexes for performance
 applicationSchema.index({ Email: 1 });
 applicationSchema.index({ ApplicationStatus: 1 });
 applicationSchema.index({ AppliedDate: -1 });
+applicationSchema.index({ JobID: 1 });
 
-// Virtual: recently applied (last 30 days)
+// ✅ Virtual: Calculate age dynamically (not stored in DB)
+applicationSchema.virtual('age').get(function () {
+  return calculateAge(this.DOB);
+});
+
+// ✅ Virtual: Check if recently applied (last 30 days)
 applicationSchema.virtual('isRecent').get(function () {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   return this.AppliedDate >= thirtyDaysAgo;
 });
 
-module.exports = mongoose.model('Application', applicationSchema);
+module.exports = mongoose.model('Application', applicationSchema); 
