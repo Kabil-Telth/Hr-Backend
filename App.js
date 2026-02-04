@@ -10,7 +10,45 @@ const rateLimit = require('express-rate-limit');
 // Remove this if it's not properly defined
 // const errhandler = require('./errorhandler');
 
-app.use(cors());
+const allowedOrigins = [
+  "https://telth.org",
+  "https://www.telth.org",
+  "https://telth.care",
+  "https://www.telth.care",
+  "https://careers.mytelth.com",
+  "https://mytelth.com",
+  "https://www.mytelth.com",
+  "https://natlife.org.in",
+  "https://www.natlife.org.in",
+  "https://nahm-som.org",
+  "https://www.nahm-som.org",
+  "https://telth.ai",
+  "https://www.telth.ai",
+  "https://medpass.org",
+  "https://www.medpass.org",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow server-to-server, Postman, curl (no origin)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed from this origin"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+    ],
+    credentials: true,
+  })
+);
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
