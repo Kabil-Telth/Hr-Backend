@@ -36,6 +36,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/host-check', (req, res) => {
+  res.json({
+    host: req.hostname,
+    ip: req.ip,
+    protocol: req.protocol,
+  });
+});
+
+
 
 // routes
 const authRoutes = require('./modules/auth/auth.routes');

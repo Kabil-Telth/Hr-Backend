@@ -28,6 +28,6 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-app.listen(PORT,"0.0.0.0" ,() => {
+app.listen(PORT,() => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -100,7 +100,7 @@ const buildJobPostFilter = (query, site) => {
 getAllJobPosts = async (req, res) => {
     try {
         const jobPosts = await JobPost.find({
-            // sites: { $in: [req.site] },
+            sites: { $in: [req.site] },
             status: 'Active' // 🔐 optional business rule
         }).sort({ createdAt: -1 });
 
