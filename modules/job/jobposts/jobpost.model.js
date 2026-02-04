@@ -114,7 +114,7 @@ const jobPostSchema = new mongoose.Schema(
 
     sites: {
       type: [String],
-      enum: ["telth", "mytelth", "telthcare", "natlife","telthorg","medpass","telth.ai"],
+      enum: ["telth", "mytelth", "telthcare", "natlife","telthorg","medpass"],
       required: true,
       index: true,
       validate: {
