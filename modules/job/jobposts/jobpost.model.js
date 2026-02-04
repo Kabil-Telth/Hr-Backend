@@ -5,6 +5,8 @@ const jobPostSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+       lowercase: true,
+        trim: true,
       trim: true
     },
 
@@ -27,6 +29,8 @@ const jobPostSchema = new mongoose.Schema(
           city: {
             type: String,
             required: true,
+             lowercase: true,
+        trim: true,
             enum: [
               "Chennai", 
               "Salem",
@@ -38,6 +42,8 @@ const jobPostSchema = new mongoose.Schema(
           country: {
             type: String,
             required: true,
+             lowercase: true,
+        trim: true,
             enum: [
               "India",
               "UK",
@@ -48,6 +54,8 @@ const jobPostSchema = new mongoose.Schema(
           type: {
             type: String,
             required: true,
+             lowercase: true,
+        trim: true,
             enum: ["Onsite", "Hybrid", "Remote"]
           }
         }
@@ -82,15 +90,6 @@ const jobPostSchema = new mongoose.Schema(
       ]
     },
 
-    requirements: {
-      type: [String],
-      required: true,
-      validate: {
-        validator: v => v.length > 0,
-        message: "At least one requirement is required"
-      }
-    },
-
     salaryRange: {
       min: {
         type: Number,
@@ -115,7 +114,7 @@ const jobPostSchema = new mongoose.Schema(
 
     sites: {
       type: [String],
-      enum: ["telth", "mytelth", "telthcare", "natlife"],
+      enum: ["telth", "mytelth", "telthcare", "natlife","telthorg","medpass","telth.ai"],
       required: true,
       index: true,
       validate: {
