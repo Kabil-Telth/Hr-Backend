@@ -59,6 +59,10 @@ const buildJobPostFilter = (query, site) => {
   const filter = {
     sites: { $in: [site] } // 🔐 Site-based filtering enforced
   };
+  // 🔑 Site filtering: mytelth sees all, others see only their jobs
+  if (site !== 'mytelth') {
+    filter.sites = { $in: [site] };
+  }
 
   // ✅ Loop through query parameters and apply allowed filters
   for (const key in query) {
@@ -108,11 +112,16 @@ const buildJobPostFilter = (query, site) => {
 
 getAllJobPosts = async (req, res) => {
     try {
-        // ✅ Fetch active job posts for the current site
-        const jobPosts = await JobPost.find({
-            sites: { $in: [req.site] },
-            status: 'Active' // 🔐 Business rule: only show active jobs
-        }).sort({ createdAt: -1 }); // ⬇️ Newest first
+        // Build filter based on site
+        const filter = { status: 'Active' }; // Only active jobs
+        
+        // 🔑 Admin panel (mytelth) sees ALL jobs, others see only their site's jobs
+        if (req.site !== 'mytelth') {
+            filter.sites = { $in: [req.site] };
+        }
+
+        const jobPosts = await JobPost.find(filter)
+            .sort({ createdAt: -1 }); // Newest first
 
         res.status(200).json({
             success: true,
@@ -126,23 +135,24 @@ getAllJobPosts = async (req, res) => {
         });
     }
 };
-
 /**
  * Get single job post (site-secure)
  */
 getJobPostById = async (req, res) => {
     try {
-        // ✅ Find job by ID and ensure it belongs to current site
-        const jobPost = await JobPost.findOne({
-            _id: req.params.id,
-            sites: req.site
-        });
+        const filter = { _id: req.params.id };
+        
+        // 🔑 Non-admin sites must match site restriction
+        if (req.site !== 'mytelth') {
+            filter.sites = req.site;
+        }
 
-        // 🔴 Not found error
+        const jobPost = await JobPost.findOne(filter);
+
         if (!jobPost) {
             return res.status(404).json({
                 success: false,
-                message: 'Job post not found for this site'
+                message: 'Job post not found'
             });
         }
 
