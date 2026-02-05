@@ -6,6 +6,26 @@ const Application = require('./applicaionform.model');
  */
 const createApplication = async (req, res) => {
   try {
+    // ✅ Manual check before creation (optional but provides better error message)
+    const existingApplication = await Application.findOne({
+      Email: req.body.Email,
+      Phone: req.body.Phone,
+      JobID: req.body.JobID
+    });
+
+    if (existingApplication) {
+      return res.status(409).json({  // 409 = Conflict
+        success: false,
+        message: 'You have already applied for this position',
+        details: {
+          applicationId: existingApplication._id,
+          appliedDate: existingApplication.AppliedDate,
+          status: existingApplication.ApplicationStatus
+        }
+      });
+    }
+
+    // Create new application
     const application = await Application.create(req.body);
 
     res.status(201).json({
@@ -14,6 +34,15 @@ const createApplication = async (req, res) => {
       data: application
     });
   } catch (error) {
+    // ✅ Handle MongoDB duplicate key error (code 11000)
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'You have already applied for this position',
+        error: 'Duplicate application detected'
+      });
+    }
+
     res.status(400).json({
       success: false,
       message: 'Failed to create application',

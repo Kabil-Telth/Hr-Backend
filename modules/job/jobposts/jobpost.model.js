@@ -19,7 +19,7 @@ const jobPostSchema = new mongoose.Schema(
     },
 
     posterLink: {
-      type: String
+      type: String,
     },
 
     description: {

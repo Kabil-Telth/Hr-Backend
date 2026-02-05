@@ -129,6 +129,7 @@ const applicationSchema = new mongoose.Schema(
       type: String,
       required: true,
       lowercase: true,
+      unique:true,
       trim: true,
       validate: {
         validator: function (email) {
@@ -142,6 +143,7 @@ const applicationSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Phone number is required'],
       trim: true,
+      unique:true,
       validate: {
         validator: function (value) {
           const patterns = [
@@ -280,6 +282,11 @@ const applicationSchema = new mongoose.Schema(
     toJSON: { virtuals: true }, // ✅ Include virtuals when converting to JSON
     toObject: { virtuals: true }
   }
+);
+
+applicationSchema.index(
+  { Email: 1, Phone: 1, JobID: 1 },
+  { unique: true, name: 'unique_application_per_job' }
 );
 
 // ✅ Indexes for performance
